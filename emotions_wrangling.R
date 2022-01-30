@@ -209,3 +209,20 @@ for (u in unique(customer$AO_transcription_id)[1:1000]){  #unique calls, 1000 fo
 
 #to see what stages are the richest for emotion data
 nm<-customer%>%group_by(`Dialogue Structure`)%>%count(Emotion)%>%arrange(desc(n))
+      
+###transfer variable
+call_data_correct$transfer <- 0
+call_data_correct$transfer<- ifelse(!(call_data_correct$FIFTH_TRANSFER_VDN== "Onbekend"), 5,
+                                    ifelse(!(call_data_correct$FOURH_TRANSFER_VDN== "Onbekend"), 4, 
+                                           ifelse(!(call_data_correct$THIRD_TRANSFER_VDN== "Onbekend"), 3,
+                                                  ifelse(!(call_data_correct$SEC_TRANSFER_VDN== "Onbekend"), 2,
+                                                         ifelse(call_data_correct$IND_TRANSFER==1, 1, 0)))))
+###dependence variable
+calldata <- full_join(calldata, frequent_employees, "AO_GENESYS_EMPLOYEE_LOGIN")
+calldata$totalcall <- calldata$n
+
+idk <-aggregate(IND_TRANSFER~AO_GENESYS_EMPLOYEE_LOGIN, data = calldata, FUN = sum)
+calldata <- full_join(calldata, idk, "AO_GENESYS_EMPLOYEE_LOGIN")
+calldata$totaltransfer <- calldata$IND_TRANSFER.y
+
+calldata$dependence <- calldata$totaltransfer/calldata$totalcall
