@@ -209,3 +209,8 @@ for (u in unique(customer$AO_transcription_id)[1:1000]){  #unique calls, 1000 fo
 
 #to see what stages are the richest for emotion data
 nm<-customer%>%group_by(`Dialogue Structure`)%>%count(Emotion)%>%arrange(desc(n))
+      
+###negativity variable at agent level
+nega <- aggregate(NEGATIVITY~AO_GENESYS_EMPLOYEE_LOGIN, data = calldata, FUN = mean)
+calldata <- full_join(calldata, nega, "AO_GENESYS_EMPLOYEE_LOGIN")
+calldata$negative <- calldata$NEGATIVITY.y
